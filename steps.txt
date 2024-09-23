@@ -1,0 +1,91 @@
+NOTE:
+- Testing of All api calls can be do via postman
+- postgres is required for making the database 
+- I have also provided with a database which can be imported 
+
+change the following in settings with your USER, PASSWORD, HOST and PORT
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
+
+1. First install the requirements.txt
+2. use 'python manage.py makemigrations' and 'python manage.py migrate' for making migrations to postgres database
+3. use 'python manage.py runserver' to run the backend server
+
+4. POST request to 'http://127.0.0.1:8000/api/register/' endpoint with a json data through postman for creating a user 
+
+format:-
+{
+    "name": "abc",
+    "phone_number": "1234567890", // limit is 10chars
+    "password": "password"
+    "email": "abc@example.com"
+}
+
+IMPORTANT:-
+YOU CAN GENERATE RANDOM DATA WHICH ACTS LIKE IMPORTING THE CONTACTS OF AN USER VIA FOLLOWING
+use command 'python manage.py generate_global_contacts' i have made it a django manegement command which will generate 10 entries in global database (you can modify that 10 to populate more)
+
+
+5. For search and report spam functionality access tokens are required with can be genrate via POST request to 'http://127.0.0.1:8000/api/token/' endpoint with a json data for authenticating
+
+format:-
+{
+    "phone_number": "1234567890",
+    "password": "password"
+}
+
+access token will be returned with validity of 10 minitues which needs to be used as authentication in Search and ReportSpam
+
+Response:-
+
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyMzQyNDkwOCwiaWF0IjoxNzIzMzM4NTA4LCJqdGkiOiJhYzU0MjdiZDAxMDk0MmQzOTEzYzg0YmMyNTQ3YzVkMiIsInVzZXJfaWQiOjIsIm5hbWUiOiJhYmNkIn0.f4X2E5x7kYP8iczTYCzEuTTBA0Q_vChoQNpFdoUHasA",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzIzMzM5MTA4LCJpYXQiOjE3MjMzMzg1MDgsImp0aSI6ImVmNzYyYjg4MDE0NDQ3ZTM5NTcxMTg3ZGZkOTQ1NGU4IiwidXNlcl9pZCI6MiwibmFtZSI6ImFiY2QifQ.ScIoJ2uaBcGWjy0ujAqX88u1MgKVLVJW09LoapKj1mw",
+    "user_id": 2,
+    "name": "abcd"
+}
+
+6. Using Search GET request to 'http://127.0.0.1:8000/api/search/?query=bar' endpoint where in query pass a name or a number that you want to search also provide authentication bearer token which was genrated
+
+Response:-
+
+[
+    {
+        "name": "Barbara",
+        "phone_number": "857046374",
+        "email": "Barbara@example.com",
+        "spam_count": 1
+    },
+    {
+        "name": "bar",
+        "phone_number": "857046374",
+        "email": null,
+        "spam_count": 1
+    }
+]
+
+7. Using ReportSpam POST request to 'http://127.0.0.1:8000/api/report-spam/' endpoint with a json data in below format also provide authentication bearer token which was genrated
+
+Format:-
+
+{
+    "phone_number": "857046374"
+}
+
+Response:-
+
+{
+    "message": "Spam report successfully recorded.",
+    "phone_number": "857046374",
+    "spam_count": 1
+}
